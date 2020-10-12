@@ -16,8 +16,8 @@ const client = new ApolloClient({
 });
 
 const GET_SHIPS = gql`
-    query SHIPS {
-        ships {
+    query SHIPS($name: String!) {
+        ships(find: {name: $name}) {
             id
             name
             type
@@ -27,12 +27,16 @@ const GET_SHIPS = gql`
 
 function Ships() {
     const filter = useStore(state => state.filter);
-    const { loading, error, data } = useQuery(GET_SHIPS);
+    const { loading, error, data } = useQuery(GET_SHIPS, {
+        variables: {
+            name: filter
+        }
+    });
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error :(</p>;
 
-    return data.ships.filter(({ name }) => name.toLowerCase().includes(filter.toLowerCase())).map(({ id, name, type }) => (
+    return data.ships.map(({ id, name, type }) => (
         <div key={id}>
             <p>
                 [{type}] {name}
